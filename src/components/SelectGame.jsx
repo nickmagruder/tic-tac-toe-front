@@ -16,6 +16,7 @@ function SelectGame({ socket, startGame }) {
 
   useEffect(() => {
     socket.emit('getPlayers', {});
+    console.log(socket.id, 'getPlayers socket.id');
   }, [socket]);
 
   useEffect(() => {
@@ -23,16 +24,33 @@ function SelectGame({ socket, startGame }) {
       setPlayers({
         players: [...players.players, data],
       });
-      console.log(players, 'PLAYERS');
+      console.log(socket.id, 'newOpponent socket.id');
     });
   });
 
   const selectOpponent = (index) => {
-    socket.emit('selectOpponent', {
+    socket.emit('selectPlayer', {
       id: players.players[index].id,
     });
-    console.log(players.players[index].id, 'players.players');
+    console.log(socket.id, 'selectOpponent socket.id');
   };
+
+  useEffect(() => {
+    socket.on('connectOpponent', (data) => {
+      if (socket.id === data.opponentID) {
+        socket.emit('opponentConnected', data);
+        startGame(data);
+      }
+      console.log(socket.id, 'connectOpponent socket.id');
+    });
+  });
+
+  useEffect(() => {
+    socket.on('gameStarted', (data) => {
+      startGame(data);
+      console.log(socket.id, 'gameStart socket.id');
+    });
+  });
 
   return (
     <div>

@@ -24,11 +24,7 @@ function App() {
 
   useEffect(() => {
     if (!socket) return;
-
     socket.on('connect', () => {
-      setSocketConnected(socket.connected);
-    });
-    socket.on('disconnect', () => {
       setSocketConnected(socket.connected);
     });
   }, [socket]);
@@ -40,9 +36,10 @@ function App() {
   const startGame = (data) => {
     setGameState({
       gameInProgress: data.status,
-      gameId: data.game_id,
-      gameData: data.game_data,
+      gameId: data.gameId,
+      gameData: data.gameData,
     });
+    console.log(data, 'startGame Data');
   };
 
   return (
@@ -61,7 +58,11 @@ function App() {
           <SelectGame socket={socket} startGame={startGame} />
         )
       ) : (
-        <Game />
+        <Game
+          socket={gameState.socket}
+          gameId={gameState.gameId}
+          gameData={gameState.gameData}
+        />
       )}
     </Container>
   );
