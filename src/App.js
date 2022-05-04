@@ -12,7 +12,10 @@ function App() {
   const [socketConnected, setSocketConnected] = useState(false);
 
   const [gameState, setGameState] = useState({
+    registered: null,
     gameInProgress: false,
+    gameId: null,
+    gameData: null,
   });
 
   useEffect(() => {
@@ -32,7 +35,14 @@ function App() {
 
   const register = (data) => {
     setGameState({ registered: data });
-    console.log(data, 'DATA being registered');
+  };
+
+  const startGame = (data) => {
+    setGameState({
+      gameInProgress: data.status,
+      gameId: data.game_id,
+      gameData: data.game_data,
+    });
   };
 
   return (
@@ -42,16 +52,13 @@ function App() {
           <header className="App-header">
             <h1>Tic Tac Toe</h1>
             {socketConnected ? (
-              <EnterName
-                socket={socket}
-                register={register}
-              />
+              <EnterName socket={socket} register={register} />
             ) : (
               <p>Loading...</p>
             )}
           </header>
         ) : (
-          <SelectGame socket={socket} />
+          <SelectGame socket={socket} startGame={startGame} />
         )
       ) : (
         <Game />

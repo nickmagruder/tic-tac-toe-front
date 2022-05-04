@@ -10,7 +10,6 @@ function EnterName({ socket, register }) {
   useEffect(() => {
     socket.on('userNameResponse', (payload) => {
       register(payload);
-      console.log(payload, 'payload');
     });
   });
 
