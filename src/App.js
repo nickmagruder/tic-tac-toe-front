@@ -18,8 +18,14 @@ function App() {
     gameData: null,
   });
 
+  // Production URL:
   useEffect(() => {
     setSocket(io('https://tic-tac-toe-two-point-o.herokuapp.com/'));
+  }, []);
+
+  // DEV URL:
+  useEffect(() => {
+    setSocket(io('http://localhost:3001/'));
   }, []);
 
   useEffect(() => {
