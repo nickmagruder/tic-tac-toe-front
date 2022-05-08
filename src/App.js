@@ -19,7 +19,7 @@ function App() {
   });
 
   useEffect(() => {
-    setSocket(io('http://localhost:3001/'));
+    setSocket(io('https://tic-tac-toe-two-point-o.herokuapp.com/'));
   }, []);
 
   useEffect(() => {
