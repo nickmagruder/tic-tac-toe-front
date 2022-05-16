@@ -1,9 +1,9 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import { Container } from 'react-bootstrap';
+import { Container, Stack } from 'react-bootstrap';
 import io from 'socket.io-client';
 
-import EnterName from './components/Login.jsx';
+import Login from './components/Login.jsx';
 import SelectGame from './components/SelectGame.jsx';
 import Game from './components/Game.jsx';
 
@@ -24,9 +24,9 @@ function App() {
   }, []);
 
   // DEV URL:
-  useEffect(() => {
+/*   useEffect(() => {
     setSocket(io('http://localhost:3001/'));
-  }, []);
+  }, []); */
 
   useEffect(() => {
     if (!socket) return;
@@ -49,25 +49,27 @@ function App() {
   };
 
   return (
-    <Container>
+    <Container fluid>
       {!gameState.gameInProgress ? (
         !gameState.registered ? (
-          <header className="App-header">
+          <Stack className="login">
             <h1>Tic Tac Toe</h1>
             {socketConnected ? (
-              <EnterName socket={socket} register={register} />
+              <Login socket={socket} register={register} />
             ) : (
               <p>Loading...</p>
             )}
-          </header>
+          </Stack>
         ) : (
           <SelectGame socket={socket} startGame={startGame} />
         )
       ) : (
         <Game
-          socket={gameState.socket}
+          socket={socket}
+          myself={gameState.clientId}
           gameId={gameState.gameId}
           gameData={gameState.gameData}
+          setGameState={setGameState}
         />
       )}
     </Container>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect, } from 'react';
-import { ListGroup } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Stack, ListGroup } from 'react-bootstrap';
 
 import './SelectGame.css';
 
@@ -7,6 +7,12 @@ function SelectGame({ socket, startGame }) {
   const [players, setPlayers] = useState({
     players: [],
   });
+
+  const selectOpponent = (index) => {
+    socket.emit('selectPlayer', {
+      id: players.players[index].id,
+    });
+  };
 
   useEffect(() => {
     socket.on('getResponse', (data) => {
@@ -16,44 +22,58 @@ function SelectGame({ socket, startGame }) {
 
   useEffect(() => {
     socket.emit('getPlayers', {});
-    console.log(socket.id, 'getPlayers socket.id');
   }, [socket]);
 
+  // TODO: solve duplicate players
   useEffect(() => {
     socket.on('newOpponent', (data) => {
       setPlayers({
         players: [...players.players, data],
       });
-      console.log(socket.id, 'newOpponent socket.id');
-    });
-  });
-
-  const selectOpponent = (index) => {
-    socket.emit('selectPlayer', {
-      id: players.players[index].id,
-    });
-    console.log(socket.id, 'selectOpponent socket.id');
-  };
-
-  useEffect(() => {
-    socket.on('connectOpponent', (data) => {
-      if (socket.id === data.opponentID) {
-        socket.emit('opponentConnected', data);
-        startGame(data);
-      }
-      console.log(socket.id, 'connectOpponent socket.id');
     });
   });
 
   useEffect(() => {
     socket.on('gameStarted', (data) => {
-      startGame(data);
-      console.log(socket.id, 'gameStart socket.id');
+      console.log('connectOpponent data', data);
+      console.log(
+        'socket.id & data.opponentID',
+        socket.id,
+        data.gameData.player1,
+        data.gameData.player2
+      );
+      if (
+        socket.id === data.gameData.player1 ||
+        socket.id === data.gameData.player2
+      ) {
+        startGame(data);
+      }
+    });
+  });
+
+  // TODO: some players not being removed(probably a state update issue)
+  useEffect(() => {
+    socket.on('excludePlayers', (data) => {
+      // console.log(data, 'excludePlayers Data');
+      // console.log(players.players, 'players.players BEFORE');
+      const playersExclusion = players.players;
+      // console.log(playersExclusion, 'playersExclusion before');
+      for (let i = 0; i < playersExclusion.length; i++) {
+        if (playersExclusion[i].id === data.one || data.two) {
+          /*           console.log(players.players[i].id, 'players.players[i].id');
+          console.log(data.one, 'data.one');
+          console.log(data.two, 'data.two'); */
+          playersExclusion.splice(i, 1);
+        }
+        // console.log(playersExclusion, 'playersExclusion after');
+        setPlayers({ players: playersExclusion });
+        // console.log(players.players, 'players.players after');
+      }
     });
   });
 
   return (
-    <div>
+    <Stack className="select-game">
       <h1>Select Your Opponent</h1>
       <ListGroup onSelect={selectOpponent}>
         {players.players.map(function (opponent, index) {
@@ -69,7 +89,7 @@ function SelectGame({ socket, startGame }) {
           );
         })}
       </ListGroup>
-    </div>
+    </Stack>
   );
 }
 
